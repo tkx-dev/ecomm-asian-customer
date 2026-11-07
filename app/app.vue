@@ -4,7 +4,7 @@
     <main class="mx-auto max-w-3xl space-y-6 p-8">
       <header class="flex items-center justify-between">
         <h1 class="text-3xl font-bold">Theme preview</h1>
-        <ThemeToggle />
+        <AppThemeToggle />
       </header>
 
       <div class="rounded-lg border bg-card p-6 text-card-foreground shadow-sm">
