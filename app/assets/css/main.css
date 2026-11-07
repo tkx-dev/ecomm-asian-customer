@@ -48,6 +48,12 @@
   --border: #d6e8f0;
   --input: #d6e8f0;
   --ring: #005a9c;
+
+  /* Navy brand band (hero). Same in both modes. */
+  --hero: #1b365d;
+  --hero-foreground: #f1f8fb;
+  --hero-muted: #b9d3e3;
+  --hero-accent: #60c1e5;
 }
 
 .dark {
@@ -111,6 +117,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-hero: var(--hero);
+  --color-hero-foreground: var(--hero-foreground);
+  --color-hero-muted: var(--hero-muted);
+  --color-hero-accent: var(--hero-accent);
+
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

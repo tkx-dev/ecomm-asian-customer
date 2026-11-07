@@ -5,11 +5,10 @@ const { isDark, toggle } = useTheme()
 <template>
   <button
     type="button"
-    class="inline-flex items-center gap-2 rounded-md border bg-card px-3 py-1.5 text-sm font-medium text-card-foreground transition-colors hover:bg-muted"
+    class="inline-flex size-11 cursor-pointer items-center justify-center rounded-md text-foreground transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
     :aria-label="isDark ? 'Switch to light theme' : 'Switch to dark theme'"
     @click="toggle"
   >
-    <span aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
-    {{ isDark ? 'Light' : 'Dark' }}
+    <AppIcon :name="isDark ? 'sun' : 'moon'" />
   </button>
 </template>
