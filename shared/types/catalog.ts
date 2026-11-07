@@ -24,7 +24,16 @@ export interface Product {
   inStock: boolean
 }
 
+export interface HeroSlide {
+  id: string
+  title: string
+  description: string
+  imageUrl: string
+  cta: { label: string; to: string }
+}
+
 export interface HomeData {
+  heroSlides: HeroSlide[]
   categories: Category[]
   featured: Product[]
   newArrivals: Product[]

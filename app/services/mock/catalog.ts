@@ -1,5 +1,5 @@
 // Dev-only dummy data. Never imported in production builds (see ../catalog.ts).
-import type { Category, HomeData, Product } from '#shared/types/catalog'
+import type { Category, HeroSlide, HomeData, Product } from '#shared/types/catalog'
 
 export type MockScenario = 'ok' | 'loading' | 'error' | 'empty'
 
@@ -59,10 +59,45 @@ const newArrivals: Product[] = [
   product('p12', 'Linen bed sheet set, queen', 'home-kitchen', 112),
 ]
 
+const heroSlides: HeroSlide[] = [
+  {
+    id: 'welcome',
+    title: 'Shop everything. Pay with crypto.',
+    description:
+      'Electronics, home goods, fashion and more. Check out from your crypto wallet and follow every order until it reaches your door.',
+    imageUrl: `https://picsum.photos/seed/infinity-hero-welcome/1200/900`,
+    cta: { label: 'Browse products', to: '/products' },
+  },
+  {
+    id: 'electronics',
+    title: 'Sound and tech for every desk',
+    description:
+      'Headphones, mechanical keyboards and smart lamps, picked for everyday use and shipped with tracking.',
+    imageUrl: `https://picsum.photos/seed/infinity-hero-electronics/1200/900`,
+    cta: { label: 'Shop electronics', to: '/products?category=electronics' },
+  },
+  {
+    id: 'home-kitchen',
+    title: 'A kitchen you want to cook in',
+    description:
+      'Cast iron, pour-over sets and linen for the rest of the house. Prices shown in USD, paid in crypto.',
+    imageUrl: `https://picsum.photos/seed/infinity-hero-kitchen/1200/900`,
+    cta: { label: 'Shop home & kitchen', to: '/products?category=home-kitchen' },
+  },
+  {
+    id: 'tracking',
+    title: 'From wallet to doorstep',
+    description:
+      'Your order updates the moment payment confirms. Follow it to delivery with its tracking number.',
+    imageUrl: `https://picsum.photos/seed/infinity-hero-tracking/1200/900`,
+    cta: { label: 'How crypto checkout works', to: '/#how-it-works' },
+  },
+]
+
 export async function mockHomeData(scenario: MockScenario): Promise<HomeData> {
   if (scenario === 'loading') return new Promise(() => {})
   await wait(500)
   if (scenario === 'error') throw new Error('The catalog service did not respond (mock error).')
-  if (scenario === 'empty') return { categories: [], featured: [], newArrivals: [] }
-  return { categories, featured, newArrivals }
+  if (scenario === 'empty') return { heroSlides: [], categories: [], featured: [], newArrivals: [] }
+  return { heroSlides, categories, featured, newArrivals }
 }

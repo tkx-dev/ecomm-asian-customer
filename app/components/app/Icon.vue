@@ -17,6 +17,10 @@ type IconName =
   | 'eye-off'
   | 'alert'
   | 'spinner'
+  | 'chevron-left'
+  | 'chevron-right'
+  | 'play'
+  | 'pause'
 
 const props = withDefaults(defineProps<{ name: IconName; size?: number; label?: string }>(), {
   size: 20,
@@ -46,6 +50,11 @@ const paths: Record<IconName, string> = {
     '<path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="m2 2 20 20"/>',
   alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>',
   spinner: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
+  'chevron-left': '<path d="m15 18-6-6 6-6"/>',
+  'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+  play: '<path d="M6 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L7.5 3.64A1 1 0 0 0 6 4.5Z"/>',
+  pause:
+    '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
 }
 </script>
 
