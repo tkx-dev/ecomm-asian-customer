@@ -52,12 +52,16 @@ async function addToCart() {
       <button
         v-if="product.inStock"
         type="button"
-        class="inline-flex min-h-11 cursor-pointer items-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-wait disabled:opacity-70"
+        class="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-wait disabled:opacity-70 sm:px-4"
         :disabled="isAdding"
         :aria-label="`Add ${product.name} to cart`"
         @click="addToCart"
       >
-        {{ isAdding ? 'Adding…' : 'Add to cart' }}
+        <AppIcon
+          :name="isAdding ? 'spinner' : 'cart-plus'"
+          :class="['sm:hidden', { 'animate-spin motion-reduce:animate-none': isAdding }]"
+        />
+        <span class="hidden sm:inline">{{ isAdding ? 'Adding…' : 'Add to cart' }}</span>
       </button>
       <span v-else class="text-sm font-medium text-muted-foreground">Out of stock</span>
     </div>
