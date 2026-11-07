@@ -121,41 +121,12 @@ useSeoMeta({
   title: () => `${isLogin.value ? 'Sign in' : 'Create account'} | InfinityShop`,
   robots: 'noindex',
 })
-
-const benefits = [
-  { icon: 'truck', text: 'Follow each order from payment to delivery, with its tracking number.' },
-  { icon: 'package', text: 'Save shipping addresses so checkout takes one step.' },
-  { icon: 'wallet', text: 'Pay from your crypto wallet. Your order updates when payment lands.' },
-] as const
 </script>
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 md:py-16 lg:px-8">
     <div class="grid overflow-hidden rounded-xl border bg-card lg:grid-cols-[0.9fr_1.1fr]">
-      <!-- Context panel: desktop only, so the form comes first on small screens -->
-      <!-- In dark mode the card is navy too, so a divider keeps the panel distinct -->
-      <aside
-        class="hidden flex-col justify-between bg-hero p-10 text-hero-foreground lg:flex dark:border-r"
-      >
-        <div>
-          <h2 class="text-3xl leading-tight font-semibold tracking-tight text-balance">
-            One account for every order
-          </h2>
-          <ul class="mt-8 space-y-5">
-            <li v-for="item in benefits" :key="item.icon" class="flex gap-4">
-              <span
-                class="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-hero-foreground/10 text-hero-accent"
-              >
-                <AppIcon :name="item.icon" />
-              </span>
-              <p class="pt-2 leading-relaxed text-hero-muted">{{ item.text }}</p>
-            </li>
-          </ul>
-        </div>
-        <p class="mt-12 text-sm text-hero-muted">
-          Order amounts and payment status always come from our store, never from your browser.
-        </p>
-      </aside>
+      <AuthHeroPanel />
 
       <section class="px-5 py-10 sm:px-12 md:py-14" aria-labelledby="auth-title">
         <div class="mx-auto max-w-sm">
