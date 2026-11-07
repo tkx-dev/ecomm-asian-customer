@@ -13,18 +13,25 @@ repo นี้เป็น **frontend อย่างเดียว** ต่อ
 - `@nuxt/image` และ `@nuxt/eslint` (config ถูกสร้างไว้ใน `.nuxt/eslint.config.mjs`)
 - Prettier 3 + `prettier-plugin-tailwindcss`
 - Package manager คือ **npm** (มี `package-lock.json`)
-- ยังไม่มี UI component library, state library, test framework หรือ API client
+- ฟอนต์ Outfit โหลดจาก Google Fonts (`app.head.link` ใน `nuxt.config.ts`) ไอคอนเป็น inline SVG ใน `AppIcon`
+- ยังไม่มี UI component library, state library หรือ test framework
 
 ## Project structure
 
 ```
 app/
-  app.vue                  # root ตอนนี้ยังเป็นหน้าทดสอบธีม ยังไม่มี <NuxtPage />
-  assets/css/main.css      # Tailwind entry + design token (light/dark)
-  components/app/          # component ระดับ app (ThemeToggle.vue)
-  composables/useTheme.ts  # จัดการธีม light/dark/system
-  pages/ layouts/ middleware/ plugins/ utils/   # ยังว่าง
-shared/types/              # ยังว่าง ใช้เก็บ type ที่ใช้ร่วมกัน
+  app.vue                  # <NuxtLayout><NuxtPage /></NuxtLayout>
+  layouts/default.vue      # AppHeader + <main> + AppFooter
+  pages/index.vue          # หน้า home (มี loading / error / empty)
+  assets/css/main.css      # Tailwind entry + design token (light/dark + hero)
+  components/app/          # Header, Footer, Logo, Icon, ThemeToggle → <AppXxx />
+  components/home/         # section ของหน้า home → <HomeXxx />
+  components/product/      # Card, Grid → <ProductCard />, <ProductGrid />
+  composables/             # useTheme, useCart
+  services/                # API client layer กลาง (catalog.ts, cart.ts)
+  services/mock/           # dummy data ใช้ได้เฉพาะตอน dev
+  utils/formatPrice.ts     # format ราคาเพื่อแสดงผลเท่านั้น
+shared/types/catalog.ts    # type ชั่วคราวของ Product/Category [TODO: ถาม] ให้ตรงกับ API จริง
 server/api, server/utils   # ว่าง ห้ามใช้ (ดู Boundaries)
 public/                    # favicon.ico, robots.txt, images/ (ว่าง)
 .claude/skills/            # skill ของ AI agent ไม่ใช่โค้ดของแอป
@@ -107,8 +114,9 @@ public/                    # favicon.ico, robots.txt, images/ (ว่าง)
 
 1. ตรวจว่างานอยู่ใน Scope ถ้าต้องใช้ API ให้เช็กว่ามีเอกสาร endpoint นั้นแล้ว ถ้ายังไม่มีให้หยุดแล้วถาม
 2. แตก branch จาก `main` [TODO: ถาม] รูปแบบชื่อ branch
-3. เขียนโค้ด ถ้าต้องใช้ mock ให้ใช้เฉพาะตอน dev และปิดได้ด้วย flag เดียว [TODO: ถาม] ชื่อ flag
-4. รัน `npm run dev` แล้วเปิดดูหน้านั้นจริงให้ครบทั้ง light, dark, loading, error และ empty
+3. เขียนโค้ด ส่วน mock ให้วางใน `app/services/mock/` และ import แบบ dynamic ภายใน `if (import.meta.dev)` เท่านั้น
+   (ดู `services/catalog.ts`) วิธีนี้ทำให้ build production ไม่มี mock ติดไปด้วย
+4. รัน `npm run dev` แล้วเปิดดูหน้านั้นจริงให้ครบทั้ง light และ dark ส่วนสถานะอื่นให้ดูด้วย `?mock=loading`, `?mock=error`, `?mock=empty`
 5. รัน `npm run format` → `npx eslint app nuxt.config.ts` → `npm run build` ทุกตัวต้องผ่าน
 6. Commit แล้วเปิด PR เข้า `main` ใน PR ต้องระบุว่าได้เทสอะไรไปบ้าง
 
@@ -132,13 +140,15 @@ public/                    # favicon.ico, robots.txt, images/ (ว่าง)
 
 ## Known gotchas
 
-- **`<ThemeToggle />` ใน `app/app.vue` resolve ไม่ได้** เพราะชื่อที่ auto-import จริงคือ `AppThemeToggle`
-  (ดู `.nuxt/components.d.ts`) ต้องเปลี่ยนเป็น `<AppThemeToggle />`
+- **Prettier กับ ESLint ขัดกันเรื่อง void element**: Prettier เขียน `<img />` แต่ `vue/html-self-closing` เตือน
+  เป็น warning ไม่ใช่ error ห้ามรัน `eslint --fix` เพราะ Prettier จะเปลี่ยนกลับ [TODO: ถาม] จะปิด rule นี้หรือไม่
+- **`app/services/` ไม่ถูก auto-import** ต้อง `import { … } from '~/services/catalog'` เอง ส่วน type ให้ใช้ `#shared/types/…`
 - **`npx eslint .` แสดง error 59 ตัว** ทั้งหมดมาจาก `.claude/skills/` ไม่ใช่โค้ดของแอป
   ให้ lint เฉพาะ `app nuxt.config.ts` [TODO: ถาม] จะเพิ่ม `.claude` ใน ignore ของ `eslint.config.mjs` หรือไม่
 - **`eslint.config.mjs` import `./.nuxt/eslint.config.mjs`** ถ้ายังไม่มี `.nuxt/` ให้รัน `npx nuxi prepare` ก่อน
 - **`eslint` อยู่ใน `dependencies`** แทนที่จะเป็น `devDependencies` ถ้าจะย้ายต้องถามก่อน
-- **ยังไม่มี `<NuxtPage />`** ตอนสร้างไฟล์แรกใน `app/pages/` ต้องแก้ `app.vue` ไม่อย่างนั้น route จะไม่แสดง
+- **ลิงก์ใน header/footer ชี้ไป route ที่ยังไม่มี** (`/products`, `/cart`, `/orders`, `/account`, `/login`, `/register`)
+  ตอนนี้ทุกลิงก์จะได้หน้า 404 จนกว่าจะสร้างหน้าเหล่านั้น
 - **ธีมอ่านค่าจาก 2 ที่**: script ใน `<head>` (`nuxt.config.ts`) กับ `useTheme.ts`
   ใช้ key `localStorage` ชื่อ `theme` เหมือนกัน ถ้าแก้ที่เดียวหน้าจอจะกระพริบหรือธีมไม่ตรงกัน
 - **ไม่มี `.env.example`** และยังไม่ได้ตั้ง `runtimeConfig` [TODO: ถาม] ชื่อ env var ของ API base URL

@@ -8,29 +8,33 @@
  * Use semantic utilities in components: bg-background, text-foreground,
  * bg-primary text-primary-foreground, border-border, etc.
  */
+/*
+ * Brand palette: navy #1B365D · blue #005A9C · sky #60C1E5 · ice #A0E0EF
+ * success / warning / destructive are status colors and stay independent of the brand.
+ */
 :root {
   --radius: 0.625rem;
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.21 0.02 265);
+  --background: #ffffff;
+  --foreground: #1b365d; /* navy */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.02 265);
+  --card: #ffffff;
+  --card-foreground: #1b365d;
 
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.02 265);
+  --popover: #ffffff;
+  --popover-foreground: #1b365d;
 
-  --primary: oklch(0.55 0.2 265);
-  --primary-foreground: oklch(0.98 0 0);
+  --primary: #005a9c; /* blue */
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.96 0.01 265);
-  --secondary-foreground: oklch(0.25 0.02 265);
+  --secondary: #a0e0ef; /* ice */
+  --secondary-foreground: #1b365d;
 
-  --muted: oklch(0.96 0.01 265);
-  --muted-foreground: oklch(0.55 0.02 265);
+  --muted: #eef7fb; /* ice tint */
+  --muted-foreground: #4a6582;
 
-  --accent: oklch(0.75 0.16 70);
-  --accent-foreground: oklch(0.25 0.05 70);
+  --accent: #60c1e5; /* sky */
+  --accent-foreground: #1b365d;
 
   --success: oklch(0.6 0.15 150);
   --success-foreground: oklch(0.98 0 0);
@@ -41,35 +45,41 @@
   --destructive: oklch(0.58 0.22 27);
   --destructive-foreground: oklch(0.98 0 0);
 
-  --border: oklch(0.92 0.01 265);
-  --input: oklch(0.92 0.01 265);
-  --ring: oklch(0.55 0.2 265);
+  --border: #d6e8f0;
+  --input: #d6e8f0;
+  --ring: #005a9c;
+
+  /* Navy brand band (hero). Same in both modes. */
+  --hero: #1b365d;
+  --hero-foreground: #f1f8fb;
+  --hero-muted: #b9d3e3;
+  --hero-accent: #60c1e5;
 }
 
 .dark {
-  --background: oklch(0.16 0.01 265);
-  --foreground: oklch(0.97 0 0);
+  --background: #0f1f36; /* deeper than navy so navy cards stand out */
+  --foreground: #f1f8fb;
 
-  --card: oklch(0.2 0.015 265);
-  --card-foreground: oklch(0.97 0 0);
+  --card: #1b365d; /* navy */
+  --card-foreground: #f1f8fb;
 
-  --popover: oklch(0.2 0.015 265);
-  --popover-foreground: oklch(0.97 0 0);
+  --popover: #1b365d;
+  --popover-foreground: #f1f8fb;
 
-  --primary: oklch(0.68 0.17 265);
-  --primary-foreground: oklch(0.16 0.01 265);
+  --primary: #60c1e5; /* sky */
+  --primary-foreground: #0f1f36;
 
-  --secondary: oklch(0.27 0.015 265);
-  --secondary-foreground: oklch(0.97 0 0);
+  --secondary: #005a9c; /* blue */
+  --secondary-foreground: #ffffff;
 
-  --muted: oklch(0.27 0.015 265);
-  --muted-foreground: oklch(0.7 0.02 265);
+  --muted: #24456f;
+  --muted-foreground: #a3c3d6;
 
-  --accent: oklch(0.78 0.15 70);
-  --accent-foreground: oklch(0.2 0.04 70);
+  --accent: #a0e0ef; /* ice */
+  --accent-foreground: #1b365d;
 
   --success: oklch(0.68 0.14 150);
-  --success-foreground: oklch(0.16 0.01 265);
+  --success-foreground: #0f1f36;
 
   --warning: oklch(0.82 0.14 85);
   --warning-foreground: oklch(0.25 0.05 85);
@@ -79,7 +89,7 @@
 
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.68 0.17 265);
+  --ring: #60c1e5;
 }
 
 /* Expose tokens as Tailwind utilities (bg-*, text-*, border-*, ring-*, rounded-*) */
@@ -107,6 +117,12 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-hero: var(--hero);
+  --color-hero-foreground: var(--hero-foreground);
+  --color-hero-muted: var(--hero-muted);
+  --color-hero-accent: var(--hero-accent);
+
+  --font-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
