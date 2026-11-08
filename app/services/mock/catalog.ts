@@ -4,20 +4,46 @@ import type { Category, HeroSlide, HomeData, Product } from '#shared/types/catal
 export type MockScenario = 'ok' | 'loading' | 'error' | 'empty'
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-const photo = (seed: string) => `https://picsum.photos/seed/infinity-${seed}/600/600`
+
+// Product photos and names from DummyJSON (https://dummyjson.com), a public test-data API.
+// Book covers from Open Library (https://openlibrary.org/dev/docs/api/covers).
+// Dev mock only: the real catalog API supplies its own images. [TODO: ask] Image host and sizes.
+const dummy = (category: string, slug: string, file = '1.webp') =>
+  `https://cdn.dummyjson.com/product-images/${category}/${encodeURIComponent(slug)}/${file}`
+const bookCover = (isbn: string) => `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
 
 const categories: Category[] = [
-  { slug: 'electronics', name: 'Electronics', imageUrl: photo('electronics'), productCount: 48 },
-  { slug: 'home-kitchen', name: 'Home & kitchen', imageUrl: photo('kitchen'), productCount: 36 },
-  { slug: 'fashion', name: 'Fashion', imageUrl: photo('fashion'), productCount: 64 },
-  { slug: 'beauty', name: 'Beauty', imageUrl: photo('beauty'), productCount: 22 },
+  {
+    slug: 'electronics',
+    name: 'Electronics',
+    imageUrl: dummy('smartphones', 'iphone-13-pro', 'thumbnail.webp'),
+    productCount: 48,
+  },
+  {
+    slug: 'home-kitchen',
+    name: 'Home & kitchen',
+    imageUrl: dummy('kitchen-accessories', 'silver-pot-with-glass-cap', 'thumbnail.webp'),
+    productCount: 36,
+  },
+  {
+    slug: 'fashion',
+    name: 'Fashion',
+    imageUrl: dummy('womens-bags', 'women-handbag-black', 'thumbnail.webp'),
+    productCount: 64,
+  },
+  {
+    slug: 'beauty',
+    name: 'Beauty',
+    imageUrl: dummy('beauty', 'red-lipstick', 'thumbnail.webp'),
+    productCount: 22,
+  },
   {
     slug: 'sports-outdoors',
     name: 'Sports & outdoors',
-    imageUrl: photo('outdoors'),
+    imageUrl: dummy('sports-accessories', 'football', 'thumbnail.webp'),
     productCount: 30,
   },
-  { slug: 'books', name: 'Books', imageUrl: photo('books'), productCount: 51 },
+  { slug: 'books', name: 'Books', imageUrl: bookCover('9780735211292'), productCount: 51 },
 ]
 
 const cat = (slug: string) => {
@@ -30,6 +56,7 @@ const product = (
   name: string,
   category: string,
   amount: number,
+  imageUrl: string,
   inStock = true,
 ): Product => ({
   id,
@@ -37,26 +64,83 @@ const product = (
   name,
   category: cat(category),
   price: { amount, currency: 'USD' },
-  imageUrl: photo(id),
+  imageUrl,
   inStock,
 })
 
 const featured: Product[] = [
-  product('p01', 'Wireless noise-cancelling headphones', 'electronics', 189),
-  product('p02', 'Ceramic pour-over coffee set', 'home-kitchen', 42.5),
-  product('p03', 'Waxed canvas weekender bag', 'fashion', 128),
-  product('p04', 'Ultralight trail running jacket', 'sports-outdoors', 96, false),
+  product(
+    'p01',
+    'Apple AirPods Max Silver',
+    'electronics',
+    549.99,
+    dummy('mobile-accessories', 'apple-airpods-max-silver'),
+  ),
+  product(
+    'p02',
+    'Boxed Blender',
+    'home-kitchen',
+    39.99,
+    dummy('kitchen-accessories', 'boxed-blender'),
+  ),
+  product(
+    'p03',
+    "Heshe Women's Leather Bag",
+    'fashion',
+    129.99,
+    dummy('womens-bags', "heshe-women's-leather-bag"),
+  ),
+  product(
+    'p04',
+    'Volleyball',
+    'sports-outdoors',
+    11.99,
+    dummy('sports-accessories', 'volleyball'),
+    false,
+  ),
 ]
 
 const newArrivals: Product[] = [
-  product('p05', 'Mechanical keyboard, 75% layout', 'electronics', 149),
-  product('p06', 'Cast iron skillet, 10 inch', 'home-kitchen', 39.99),
-  product('p07', 'Merino crew-neck sweater', 'fashion', 84),
-  product('p08', 'Vitamin C brightening serum', 'beauty', 27),
-  product('p09', 'Insulated steel water bottle', 'sports-outdoors', 24.95),
-  product('p10', 'The design of everyday things', 'books', 18.5),
-  product('p11', 'Smart LED desk lamp', 'electronics', 59, false),
-  product('p12', 'Linen bed sheet set, queen', 'home-kitchen', 112),
+  product(
+    'p05',
+    'Apple MacBook Pro 14 Inch Space Grey',
+    'electronics',
+    1999.99,
+    dummy('laptops', 'apple-macbook-pro-14-inch-space-grey'),
+  ),
+  product(
+    'p06',
+    'Carbon Steel Wok',
+    'home-kitchen',
+    29.99,
+    dummy('kitchen-accessories', 'carbon-steel-wok'),
+  ),
+  product(
+    'p07',
+    'Puma Future Rider Trainers',
+    'fashion',
+    89.99,
+    dummy('mens-shoes', 'puma-future-rider-trainers'),
+  ),
+  product(
+    'p08',
+    'Eyeshadow Palette with Mirror',
+    'beauty',
+    19.99,
+    dummy('beauty', 'eyeshadow-palette-with-mirror'),
+  ),
+  product('p09', 'Basketball', 'sports-outdoors', 14.99, dummy('sports-accessories', 'basketball')),
+  // Open Library has no prices. This one is a placeholder like every mock price.
+  product('p10', 'The Design of Everyday Things', 'books', 18.5, bookCover('9780465050659')),
+  product(
+    'p11',
+    'Samsung Galaxy S8',
+    'electronics',
+    499.99,
+    dummy('smartphones', 'samsung-galaxy-s8'),
+    false,
+  ),
+  product('p12', 'Table Lamp', 'home-kitchen', 49.99, dummy('home-decoration', 'table-lamp')),
 ]
 
 const heroSlides: HeroSlide[] = [

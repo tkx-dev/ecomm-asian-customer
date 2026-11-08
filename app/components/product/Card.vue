@@ -32,7 +32,7 @@ async function addToCart() {
         width="600"
         height="600"
         loading="lazy"
-        class="size-full object-cover"
+        class="size-full object-contain p-4"
         :class="{ 'opacity-60 grayscale': !product.inStock }"
       />
     </NuxtLink>
