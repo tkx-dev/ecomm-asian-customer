@@ -75,24 +75,32 @@ const control =
   >
     <div class="hero-glow pointer-events-none absolute inset-0 -z-10" aria-hidden="true" />
 
-    <div class="mx-auto max-w-7xl px-4 pt-12 pb-10 sm:px-6 md:pt-16 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 pt-6 pb-6 sm:px-6 sm:pt-12 sm:pb-10 md:pt-16 lg:px-8">
       <!-- Loading: same footprint as a slide so nothing shifts when data arrives -->
       <div
         v-if="loading"
-        class="grid items-center gap-10 lg:min-h-[30rem] lg:grid-cols-[1fr_1.1fr]"
+        class="grid items-center gap-6 sm:gap-10 lg:min-h-[30rem] lg:grid-cols-[1fr_1.1fr]"
         aria-hidden="true"
       >
-        <div class="space-y-4">
-          <div class="h-12 w-4/5 rounded-lg bg-hero-foreground/10 motion-safe:animate-pulse" />
-          <div class="h-12 w-3/5 rounded-lg bg-hero-foreground/10 motion-safe:animate-pulse" />
+        <div class="space-y-3 sm:space-y-4">
+          <div
+            class="h-9 w-4/5 rounded-lg bg-hero-foreground/10 motion-safe:animate-pulse sm:h-12"
+          />
+          <div
+            class="h-9 w-3/5 rounded-lg bg-hero-foreground/10 motion-safe:animate-pulse sm:h-12"
+          />
           <div class="h-5 w-full rounded bg-hero-foreground/10 motion-safe:animate-pulse" />
           <div class="h-5 w-2/3 rounded bg-hero-foreground/10 motion-safe:animate-pulse" />
-          <div class="h-12 w-44 rounded-full bg-hero-foreground/10 motion-safe:animate-pulse" />
+          <div
+            class="h-11 w-40 rounded-full bg-hero-foreground/10 motion-safe:animate-pulse sm:h-12 sm:w-44"
+          />
         </div>
-        <div class="aspect-[4/3] rounded-3xl bg-hero-foreground/10 motion-safe:animate-pulse" />
+        <div
+          class="aspect-[16/9] rounded-2xl bg-hero-foreground/10 motion-safe:animate-pulse sm:aspect-[4/3] sm:rounded-3xl"
+        />
       </div>
       <!-- Placeholder for the controls row -->
-      <div v-if="loading" class="mt-10 h-11" aria-hidden="true" />
+      <div v-if="loading" class="mt-6 h-11 sm:mt-10" aria-hidden="true" />
 
       <template v-else>
         <!-- Slides are stacked in one grid cell: the tallest one sets the height -->
@@ -110,7 +118,7 @@ const control =
             :aria-label="`${i + 1} of ${items.length}`"
             :inert="i !== active"
             :class="[
-              'col-start-1 row-start-1 grid items-center gap-10 transition-opacity duration-700 lg:min-h-[30rem] lg:grid-cols-[1fr_1.1fr]',
+              'col-start-1 row-start-1 grid items-center gap-6 transition-opacity duration-700 sm:gap-10 lg:min-h-[30rem] lg:grid-cols-[1fr_1.1fr]',
               i === active ? 'opacity-100' : 'pointer-events-none opacity-0',
             ]"
           >
@@ -122,16 +130,18 @@ const control =
             >
               <component
                 :is="i === 0 ? 'h1' : 'h2'"
-                class="text-4xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl"
+                class="text-3xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl"
               >
                 {{ slide.title }}
               </component>
-              <p class="mt-5 text-lg leading-relaxed text-pretty text-hero-muted">
+              <p
+                class="mt-3 line-clamp-2 text-base leading-relaxed text-pretty text-hero-muted sm:mt-5 sm:line-clamp-none sm:text-lg"
+              >
                 {{ slide.description }}
               </p>
               <NuxtLink
                 :to="slide.cta.to"
-                class="mt-8 inline-flex min-h-12 items-center rounded-full bg-hero-accent px-6 font-semibold text-hero transition-colors hover:bg-hero-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-accent"
+                class="mt-5 inline-flex min-h-11 items-center rounded-full bg-hero-accent px-6 font-semibold text-hero transition-colors hover:bg-hero-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-hero-accent sm:mt-8 sm:min-h-12"
               >
                 {{ slide.cta.label }}
               </NuxtLink>
@@ -139,11 +149,11 @@ const control =
 
             <div class="relative">
               <div
-                class="absolute -inset-3 -z-10 rotate-2 rounded-[2rem] border border-hero-foreground/10"
+                class="absolute -inset-3 -z-10 hidden rotate-2 rounded-[2rem] border border-hero-foreground/10 sm:block"
                 aria-hidden="true"
               />
               <div
-                class="aspect-[4/3] overflow-hidden rounded-3xl bg-hero-foreground/10 shadow-2xl shadow-black/30"
+                class="aspect-[16/9] overflow-hidden rounded-2xl bg-hero-foreground/10 shadow-2xl shadow-black/30 sm:aspect-[4/3] sm:rounded-3xl"
               >
                 <img
                   v-if="slide.imageUrl"
@@ -162,7 +172,7 @@ const control =
                   class="flex size-full items-center justify-center text-hero-accent"
                   aria-hidden="true"
                 >
-                  <AppIcon name="infinity" :size="160" />
+                  <AppIcon name="infinity" :size="120" />
                 </div>
               </div>
             </div>
@@ -170,7 +180,7 @@ const control =
         </div>
 
         <!-- Controls -->
-        <div v-if="items.length > 1" class="mt-10 flex items-center gap-4">
+        <div v-if="items.length > 1" class="mt-6 flex items-center gap-4 sm:mt-10">
           <div class="flex items-center gap-1">
             <button
               v-for="(slide, i) in items"
