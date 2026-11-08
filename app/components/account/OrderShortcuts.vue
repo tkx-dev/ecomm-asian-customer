@@ -40,9 +40,11 @@ const countdown = computed(() => {
 </script>
 
 <template>
-  <section aria-labelledby="my-orders-title">
+  <section id="orders" class="scroll-mt-24" aria-labelledby="my-orders-title">
     <div class="flex items-center justify-between gap-4">
-      <h2 id="my-orders-title" class="text-xl font-semibold tracking-tight">My orders</h2>
+      <h2 id="my-orders-title" class="text-xl font-semibold tracking-tight lg:text-2xl">
+        My orders
+      </h2>
       <NuxtLink
         to="/orders"
         class="-mr-2 inline-flex min-h-11 items-center gap-0.5 rounded-md px-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
@@ -68,7 +70,7 @@ const countdown = computed(() => {
               {{ tile.count > 99 ? '99+' : tile.count }}
             </span>
           </span>
-          <span class="text-xs leading-tight">
+          <span class="text-xs leading-tight lg:text-sm">
             {{ tile.label }}
             <span v-if="!loading" class="sr-only">
               , {{ tile.count }} {{ tile.count === 1 ? 'order' : 'orders' }}

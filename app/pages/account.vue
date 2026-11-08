@@ -57,11 +57,30 @@ async function onSignOut() {
   }
 }
 
-const sections = [
+// Desktop: a sidebar of tabs and links. Mobile shows every section in one scroll instead.
+// The menu matches mobile: the three sections plus the All orders and Cart links.
+type Tab = 'orders' | 'details' | 'addresses'
+const tabs = [
+  { id: 'orders', label: 'My orders', icon: 'package' },
   { id: 'details', label: 'Personal details', icon: 'user' },
-  { id: 'addresses', label: 'Shipping addresses', icon: 'map-pin' },
-  { id: 'orders', label: 'Recent orders', icon: 'package' },
+  { id: 'addresses', label: 'Addresses', icon: 'map-pin' },
 ] as const
+const links = [
+  { to: '/orders', label: 'All orders', icon: 'truck' },
+  { to: '/cart', label: 'Cart', icon: 'cart' },
+] as const
+
+const isTab = (value: unknown): value is Tab => tabs.some((tab) => tab.id === value)
+// ?tab= keeps the tab on reload. A #hash from a mobile quick link also picks the tab.
+const activeTab = computed<Tab>(() => {
+  if (isTab(route.query.tab)) return route.query.tab
+  const fromHash = route.hash.slice(1)
+  return isTab(fromHash) ? fromHash : 'orders'
+})
+// Keeps the other query params (such as ?mock=) when switching tabs.
+const tabLink = (tab: Tab) => ({ query: { ...route.query, tab } })
+// Hidden on desktop unless it is the open tab. Always shown on mobile.
+const tabClass = (tab: Tab) => activeTab.value !== tab && 'lg:hidden'
 
 useSeoMeta({ title: 'Your account | InfinityShop', robots: 'noindex' })
 
@@ -148,27 +167,52 @@ const panel = 'bg-card px-4 py-6 sm:px-6 lg:bg-transparent lg:p-0'
         </div>
       </div>
 
-      <!-- Mobile: app-style stack of panels on a tinted ground. Desktop: side nav + sections. -->
+      <!-- Mobile: app-style stack of panels on a tinted ground. Desktop: sidebar + one tab. -->
       <div class="bg-muted lg:bg-transparent dark:bg-background">
         <div
           :class="[container, 'grid gap-2 max-lg:px-0 lg:grid-cols-[13rem_1fr] lg:gap-12 lg:py-16']"
           :aria-busy="isLoading"
         >
-          <nav aria-label="Account sections" class="hidden lg:block">
-            <ul class="sticky top-24 space-y-1">
-              <li v-for="section in sections" :key="section.id">
-                <a
-                  :href="`#${section.id}`"
-                  class="flex min-h-11 items-center gap-3 rounded-md px-3 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-                >
-                  <AppIcon :name="section.icon" :size="18" />
-                  {{ section.label }}
-                </a>
-              </li>
-            </ul>
+          <nav aria-label="Account menu" class="hidden lg:block">
+            <div class="sticky top-24">
+              <ul class="space-y-1">
+                <li v-for="tab in tabs" :key="tab.id">
+                  <NuxtLink
+                    :to="tabLink(tab.id)"
+                    replace
+                    :aria-current="activeTab === tab.id ? 'page' : undefined"
+                    :class="[
+                      'relative flex min-h-11 items-center gap-3 rounded-md px-3 font-medium transition-colors focus-visible:outline-2 focus-visible:outline-ring',
+                      activeTab === tab.id
+                        ? 'bg-muted text-foreground before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-full before:bg-primary'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                    ]"
+                  >
+                    <AppIcon
+                      :name="tab.icon"
+                      :size="18"
+                      :class="activeTab === tab.id && 'text-primary'"
+                    />
+                    {{ tab.label }}
+                  </NuxtLink>
+                </li>
+              </ul>
+              <ul class="mt-3 space-y-1 border-t pt-3">
+                <li v-for="link in links" :key="link.to">
+                  <NuxtLink
+                    :to="link.to"
+                    class="flex min-h-11 items-center gap-3 rounded-md px-3 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                  >
+                    <AppIcon :name="link.icon" :size="18" />
+                    {{ link.label }}
+                    <AppIcon name="chevron-right" :size="16" class="ml-auto" />
+                  </NuxtLink>
+                </li>
+              </ul>
+            </div>
           </nav>
 
-          <div class="min-w-0 space-y-2 lg:space-y-16">
+          <div class="min-w-0 space-y-2 lg:space-y-0">
             <nav aria-label="Account shortcuts" :class="[panel, 'py-4 lg:hidden']">
               <ul class="grid grid-cols-4 gap-2">
                 <li v-for="item in shortcuts" :key="item.label">
@@ -188,30 +232,28 @@ const panel = 'bg-card px-4 py-6 sm:px-6 lg:bg-transparent lg:p-0'
             </nav>
 
             <AccountOrderShortcuts
-              :class="[panel, 'lg:hidden']"
+              :class="[panel, tabClass('orders')]"
               :counts="data?.orderCounts"
               :awaiting-payment="data?.awaitingPayment"
               :loading="isLoading"
             />
             <AccountProfileForm
-              :class="panel"
+              :class="[panel, tabClass('details')]"
               :profile="data?.profile"
               :loading="isLoading"
               :scenario="mutationScenario"
               @saved="(profile) => patch({ profile })"
             />
             <AccountAddressBook
-              :class="[panel, '[--notch-bg:var(--card)] lg:[--notch-bg:var(--background)]']"
+              :class="[
+                panel,
+                tabClass('addresses'),
+                '[--notch-bg:var(--card)] lg:[--notch-bg:var(--background)]',
+              ]"
               :addresses="data?.addresses"
               :loading="isLoading"
               :scenario="mutationScenario"
               @update="(addresses) => patch({ addresses })"
-            />
-            <!-- Mobile shows the order stages above instead. -->
-            <AccountRecentOrders
-              class="hidden lg:block"
-              :orders="data?.recentOrders"
-              :loading="isLoading"
             />
           </div>
         </div>
