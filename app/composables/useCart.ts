@@ -5,10 +5,10 @@ export function useCart() {
   const itemCount = useState<number>('cart-item-count', () => 0)
   const pendingProductId = useState<string | null>('cart-pending-product', () => null)
 
-  async function add(productId: string) {
+  async function add(productId: string, quantity = 1) {
     pendingProductId.value = productId
     try {
-      const cart = await addToCart(productId, 1)
+      const cart = await addToCart(productId, quantity)
       itemCount.value = cart.itemCount
     } finally {
       pendingProductId.value = null

@@ -42,3 +42,28 @@ export interface HomeData {
 export interface CartSummary {
   itemCount: number
 }
+
+export interface ProductSpec {
+  label: string
+  value: string
+}
+
+export interface ProductDetail extends Product {
+  brand: string | null
+  sku: string
+  description: string
+  /** Gallery images, first one is the main image. */
+  images: string[]
+  /** Units available, as sent by the API. The API still checks stock when adding to cart. */
+  stock: number
+  /** Delivery estimate text from the API, such as "Ships in 1-2 business days". */
+  shippingNote: string | null
+  warranty: string | null
+  specs: ProductSpec[]
+}
+
+export interface ProductPageData {
+  product: ProductDetail
+  /** Other products to show below, chosen by the API. */
+  related: Product[]
+}
