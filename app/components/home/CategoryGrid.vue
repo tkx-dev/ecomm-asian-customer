@@ -18,7 +18,7 @@ defineProps<{ categories: Category[] }>()
             width="300"
             height="300"
             loading="lazy"
-            class="size-full object-cover"
+            class="size-full object-contain p-5"
           />
         </div>
         <p class="mt-3 text-center font-medium group-hover:text-primary">{{ category.name }}</p>

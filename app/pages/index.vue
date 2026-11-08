@@ -37,7 +37,7 @@ const container = 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'
 
 <template>
   <div>
-    <HomeHero :products="data?.featured.slice(0, 2) ?? []" />
+    <HomeHero :slides="data?.heroSlides ?? []" :loading="isLoading" />
 
     <!-- Error -->
     <section v-if="status === 'error'" :class="[container, 'py-20']" aria-live="polite">
