@@ -29,3 +29,9 @@ export async function mockSocialSignIn(
     throw new Error(`${name} did not confirm your account (mock error).`)
   }
 }
+
+export async function mockSignOut(scenario: MockScenario): Promise<void> {
+  if (scenario === 'loading') return new Promise(() => {})
+  await wait(500)
+  if (scenario === 'error') throw new Error('The session did not end (mock error).')
+}

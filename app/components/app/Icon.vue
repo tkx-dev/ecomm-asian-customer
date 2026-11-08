@@ -1,6 +1,5 @@
-<script setup lang="ts">
-// Inline SVG icons (Lucide-style strokes). Decorative by default: pass a label to expose one.
-type IconName =
+<script lang="ts">
+export type IconName =
   | 'infinity'
   | 'search'
   | 'cart'
@@ -22,7 +21,19 @@ type IconName =
   | 'chevron-right'
   | 'play'
   | 'pause'
+  | 'map-pin'
+  | 'pencil'
+  | 'trash'
+  | 'plus'
+  | 'check'
+  | 'log-out'
+  | 'mail'
+  | 'phone'
+  | 'package-check'
+</script>
 
+<script setup lang="ts">
+// Inline SVG icons (Lucide-style strokes). Decorative by default: pass a label to expose one.
 const props = withDefaults(defineProps<{ name: IconName; size?: number; label?: string }>(), {
   size: 20,
   label: undefined,
@@ -58,6 +69,21 @@ const paths: Record<IconName, string> = {
   play: '<path d="M6 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L7.5 3.64A1 1 0 0 0 6 4.5Z"/>',
   pause:
     '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>',
+  'map-pin':
+    '<path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+  pencil:
+    '<path d="M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5Z"/><path d="m15 5 4 4"/>',
+  trash:
+    '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  plus: '<path d="M5 12h14M12 5v14"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  mail: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  phone:
+    '<path d="M13.83 16.57a1 1 0 0 0 1.21-.3l.36-.47a2 2 0 0 1 1.6-.8h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.47.35a1 1 0 0 0-.29 1.23 14 14 0 0 0 6.39 6.39"/>',
+  'package-check':
+    '<path d="m16 16 2 2 4-4"/><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="m7.5 4.27 9 5.15"/><path d="M3.29 7 12 12l8.71-5"/><path d="M12 22V12"/>',
+  'log-out':
+    '<path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>',
 }
 </script>
 

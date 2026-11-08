@@ -34,3 +34,11 @@ export async function signInWithProvider(
   }
   throw new Error(`${provider === 'google' ? 'Google' : 'Facebook'} sign-in is not connected yet.`)
 }
+
+export async function signOut(scenario: MockScenario = 'ok'): Promise<void> {
+  if (import.meta.dev) {
+    const { mockSignOut } = await import('./mock/auth')
+    return mockSignOut(scenario)
+  }
+  throw new Error('Sign-out is not connected yet.')
+}

@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import type { IconName } from '~/components/app/Icon.vue'
+
 // Labelled input with an inline error. Password fields get a show/hide toggle.
+// `icon` adds a decorative leading icon inside the input.
 const props = withDefaults(
   defineProps<{
     id: string
     label: string
-    type?: 'text' | 'email' | 'password'
+    type?: 'text' | 'email' | 'tel' | 'password'
     autocomplete?: string
     error?: string
+    icon?: IconName
   }>(),
-  { type: 'text', autocomplete: undefined, error: '' },
+  { type: 'text', autocomplete: undefined, error: '', icon: undefined },
 )
 
 const model = defineModel<string>({ required: true })
@@ -26,6 +30,15 @@ defineExpose({ focus: () => input.value?.focus() })
   <div>
     <label :for="id" class="block text-sm font-medium">{{ label }}</label>
     <div class="relative mt-1.5">
+      <AppIcon
+        v-if="icon"
+        :name="icon"
+        :size="18"
+        :class="[
+          'pointer-events-none absolute top-1/2 left-4 -translate-y-1/2',
+          error ? 'text-destructive' : 'text-muted-foreground',
+        ]"
+      />
       <input
         :id="id"
         ref="input"
@@ -35,8 +48,9 @@ defineExpose({ focus: () => input.value?.focus() })
         :aria-invalid="error ? 'true' : undefined"
         :aria-describedby="error ? `${id}-error` : undefined"
         :class="[
-          'h-12 w-full rounded-lg border bg-background px-4 text-base transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring',
-          type === 'password' && 'pr-12',
+          'h-12 w-full rounded-lg border bg-background text-base transition-colors focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-ring',
+          type === 'password' ? 'pr-12' : 'pr-4',
+          icon ? 'pl-11' : 'pl-4',
           error ? 'border-destructive' : 'border-input',
         ]"
       />
