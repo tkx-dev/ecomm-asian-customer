@@ -67,3 +67,36 @@ export interface ProductPageData {
   /** Other products to show below, chosen by the API. */
   related: Product[]
 }
+
+export type ProductSort = 'relevance' | 'price-asc' | 'price-desc'
+
+/** What the customer asked the listing for. Every field is optional. */
+export interface ProductQuery {
+  q?: string
+  category?: string
+  brands?: string[]
+  minPrice?: number
+  maxPrice?: number
+  inStockOnly?: boolean
+  sort?: ProductSort
+  page?: number
+}
+
+export interface FacetOption {
+  value: string
+  label: string
+  /** Matching products, as counted by the API. */
+  count: number
+}
+
+export interface ProductListResult {
+  items: Product[]
+  /** Total matching products across all pages. */
+  total: number
+  page: number
+  pageSize: number
+  facets: {
+    categories: FacetOption[]
+    brands: FacetOption[]
+  }
+}

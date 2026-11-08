@@ -1,154 +1,80 @@
 // Dev-only dummy data. Never imported in production builds (see ../catalog.ts).
+// Products come from ./catalogData.ts (DummyJSON + Open Library). This file plays the backend:
+// it filters, sorts, counts and pages so the UI can be built before the API exists.
 import type {
   Category,
+  FacetOption,
   HeroSlide,
   HomeData,
   Product,
   ProductDetail,
+  ProductListResult,
   ProductPageData,
+  ProductQuery,
 } from '#shared/types/catalog'
+import { productRows, type MockProductRow } from './catalogData'
 
 export type MockScenario = 'ok' | 'loading' | 'error' | 'empty'
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Product photos and names from DummyJSON (https://dummyjson.com), a public test-data API.
-// Book covers from Open Library (https://openlibrary.org/dev/docs/api/covers).
-// Dev mock only: the real catalog API supplies its own images. [TODO: ask] Image host and sizes.
-const dummy = (category: string, slug: string, file = '1.webp') =>
-  `https://cdn.dummyjson.com/product-images/${category}/${encodeURIComponent(slug)}/${file}`
-const bookCover = (isbn: string) => `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`
+const PAGE_SIZE = 24
 
-const categories: Category[] = [
-  {
-    slug: 'electronics',
-    name: 'Electronics',
-    imageUrl: dummy('smartphones', 'iphone-13-pro', 'thumbnail.webp'),
-    productCount: 48,
-  },
-  {
-    slug: 'home-kitchen',
-    name: 'Home & kitchen',
-    imageUrl: dummy('kitchen-accessories', 'silver-pot-with-glass-cap', 'thumbnail.webp'),
-    productCount: 36,
-  },
-  {
-    slug: 'fashion',
-    name: 'Fashion',
-    imageUrl: dummy('womens-bags', 'women-handbag-black', 'thumbnail.webp'),
-    productCount: 64,
-  },
-  {
-    slug: 'beauty',
-    name: 'Beauty',
-    imageUrl: dummy('beauty', 'red-lipstick', 'thumbnail.webp'),
-    productCount: 22,
-  },
-  {
-    slug: 'sports-outdoors',
-    name: 'Sports & outdoors',
-    imageUrl: dummy('sports-accessories', 'football', 'thumbnail.webp'),
-    productCount: 30,
-  },
-  { slug: 'books', name: 'Books', imageUrl: bookCover('9780735211292'), productCount: 51 },
+const categoryInfo = [
+  { slug: 'electronics', name: 'Electronics', image: 'd123' },
+  { slug: 'home-kitchen', name: 'Home & kitchen', image: 'd71' },
+  { slug: 'fashion', name: 'Fashion', image: 'd176' },
+  { slug: 'beauty', name: 'Beauty', image: 'd4' },
+  { slug: 'sports-outdoors', name: 'Sports & outdoors', image: 'd147' },
+  { slug: 'books', name: 'Books', image: 'b9780735211292' },
 ]
+const categoryName = (slug: string) => categoryInfo.find((c) => c.slug === slug)?.name ?? slug
 
-const cat = (slug: string) => {
-  const found = categories.find((c) => c.slug === slug)!
-  return { slug: found.slug, name: found.name }
+function toDetail(row: MockProductRow): ProductDetail {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    category: { slug: row.category, name: categoryName(row.category) },
+    price: { amount: row.amount, currency: 'USD' },
+    imageUrl: row.images[0]!,
+    inStock: row.stock > 0,
+    brand: row.brand,
+    sku: row.sku,
+    description: row.description,
+    images: row.images,
+    stock: row.stock,
+    shippingNote: row.shippingNote,
+    warranty: row.warranty,
+    specs: row.specs.map(([label, value]) => ({ label, value })),
+  }
 }
 
-const product = (
-  id: string,
-  name: string,
-  category: string,
-  amount: number,
-  imageUrl: string,
-  inStock = true,
-): Product => ({
-  id,
-  slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-  name,
-  category: cat(category),
-  price: { amount, currency: 'USD' },
-  imageUrl,
-  inStock,
+const products = productRows.map(toDetail)
+const byId = (id: string) => products.find((p) => p.id === id)!
+
+// Only the card fields, as a list endpoint would send them.
+const toCard = (p: ProductDetail): Product => ({
+  id: p.id,
+  slug: p.slug,
+  name: p.name,
+  category: p.category,
+  price: p.price,
+  imageUrl: p.imageUrl,
+  inStock: p.inStock,
 })
 
-const featured: Product[] = [
-  product(
-    'p01',
-    'Apple AirPods Max Silver',
-    'electronics',
-    549.99,
-    dummy('mobile-accessories', 'apple-airpods-max-silver'),
-  ),
-  product(
-    'p02',
-    'Boxed Blender',
-    'home-kitchen',
-    39.99,
-    dummy('kitchen-accessories', 'boxed-blender'),
-  ),
-  product(
-    'p03',
-    "Heshe Women's Leather Bag",
-    'fashion',
-    129.99,
-    dummy('womens-bags', "heshe-women's-leather-bag"),
-  ),
-  product(
-    'p04',
-    'Volleyball',
-    'sports-outdoors',
-    11.99,
-    dummy('sports-accessories', 'volleyball'),
-    false,
-  ),
-]
+const categories: Category[] = categoryInfo.map((c) => ({
+  slug: c.slug,
+  name: c.name,
+  imageUrl: byId(c.image).imageUrl,
+  productCount: products.filter((p) => p.category.slug === c.slug).length,
+}))
 
-const newArrivals: Product[] = [
-  product(
-    'p05',
-    'Apple MacBook Pro 14 Inch Space Grey',
-    'electronics',
-    1999.99,
-    dummy('laptops', 'apple-macbook-pro-14-inch-space-grey'),
-  ),
-  product(
-    'p06',
-    'Carbon Steel Wok',
-    'home-kitchen',
-    29.99,
-    dummy('kitchen-accessories', 'carbon-steel-wok'),
-  ),
-  product(
-    'p07',
-    'Puma Future Rider Trainers',
-    'fashion',
-    89.99,
-    dummy('mens-shoes', 'puma-future-rider-trainers'),
-  ),
-  product(
-    'p08',
-    'Eyeshadow Palette with Mirror',
-    'beauty',
-    19.99,
-    dummy('beauty', 'eyeshadow-palette-with-mirror'),
-  ),
-  product('p09', 'Basketball', 'sports-outdoors', 14.99, dummy('sports-accessories', 'basketball')),
-  // Open Library has no prices. This one is a placeholder like every mock price.
-  product('p10', 'The Design of Everyday Things', 'books', 18.5, bookCover('9780465050659')),
-  product(
-    'p11',
-    'Samsung Galaxy S8',
-    'electronics',
-    499.99,
-    dummy('smartphones', 'samsung-galaxy-s8'),
-    false,
-  ),
-  product('p12', 'Table Lamp', 'home-kitchen', 49.99, dummy('home-decoration', 'table-lamp')),
-]
+const featured = ['d101', 'd51', 'd173', 'd153'].map((id) => toCard(byId(id)))
+const newArrivals = ['d78', 'd52', 'd90', 'd2', 'd140', 'b9780465050659', 'd132', 'd47'].map((id) =>
+  toCard(byId(id)),
+)
 
 const heroSlides: HeroSlide[] = [
   {
@@ -193,245 +119,6 @@ export async function mockHomeData(scenario: MockScenario): Promise<HomeData> {
   return { heroSlides, categories, featured, newArrivals }
 }
 
-// Product page extras, keyed by product id. Copied from DummyJSON (weight and size units assumed).
-type DetailExtras = Omit<ProductDetail, keyof Product>
-const details: Record<string, DetailExtras> = {
-  p01: {
-    brand: 'Apple',
-    sku: 'MOB-APP-APP-101',
-    description:
-      'The Apple AirPods Max in Silver are premium over-ear headphones with high-fidelity audio, adaptive EQ, and active noise cancellation. Experience immersive sound in style.',
-    images: [
-      'https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/1.webp',
-    ],
-    stock: 59,
-    shippingNote: 'Ships in 2 weeks',
-    warranty: 'No warranty',
-    specs: [
-      { label: 'Brand', value: 'Apple' },
-      { label: 'SKU', value: 'MOB-APP-APP-101' },
-      { label: 'Weight', value: '2 kg' },
-      { label: 'Dimensions (W × H × D)', value: '24.88 × 14.9 × 27.54 cm' },
-      { label: 'Warranty', value: 'No warranty' },
-    ],
-  },
-  p02: {
-    brand: null,
-    sku: 'KIT-BRD-BOX-051',
-    description:
-      'The Boxed Blender is a powerful and compact blender perfect for smoothies, shakes, and more. Its convenient design and multiple functions make it a versatile kitchen appliance.',
-    images: [
-      'https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/1.webp',
-      'https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/2.webp',
-      'https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/3.webp',
-      'https://cdn.dummyjson.com/product-images/kitchen-accessories/boxed-blender/4.webp',
-    ],
-    stock: 9,
-    shippingNote: 'Ships in 1-2 business days',
-    warranty: '5 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Unbranded' },
-      { label: 'SKU', value: 'KIT-BRD-BOX-051' },
-      { label: 'Weight', value: '1 kg' },
-      { label: 'Dimensions (W × H × D)', value: '9.05 × 19.45 × 17.59 cm' },
-      { label: 'Warranty', value: '5 year warranty' },
-    ],
-  },
-  p03: {
-    brand: 'Heshe',
-    sku: 'WOM-HES-HES-173',
-    description:
-      "The Heshe Women's Leather Bag is a luxurious and high-quality leather bag for the sophisticated woman. With a timeless design and durable craftsmanship, it's a versatile accessory.",
-    images: [
-      "https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/1.webp",
-      "https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/2.webp",
-      "https://cdn.dummyjson.com/product-images/womens-bags/heshe-women's-leather-bag/3.webp",
-    ],
-    stock: 99,
-    shippingNote: 'Ships overnight',
-    warranty: '5 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Heshe' },
-      { label: 'SKU', value: 'WOM-HES-HES-173' },
-      { label: 'Weight', value: '3 kg' },
-      { label: 'Dimensions (W × H × D)', value: '28.66 × 20.56 × 6.62 cm' },
-      { label: 'Warranty', value: '5 year warranty' },
-    ],
-  },
-  p04: {
-    brand: null,
-    sku: 'SPO-BRD-VOL-153',
-    description:
-      'The Volleyball is a standard ball used in the sport of volleyball. It is designed for passing, setting, and spiking over the net during volleyball matches.',
-    images: ['https://cdn.dummyjson.com/product-images/sports-accessories/volleyball/1.webp'],
-    stock: 0,
-    shippingNote: 'Ships in 1 week',
-    warranty: '1 week warranty',
-    specs: [
-      { label: 'Brand', value: 'Unbranded' },
-      { label: 'SKU', value: 'SPO-BRD-VOL-153' },
-      { label: 'Weight', value: '3 kg' },
-      { label: 'Dimensions (W × H × D)', value: '17.01 × 20.05 × 9.94 cm' },
-      { label: 'Warranty', value: '1 week warranty' },
-    ],
-  },
-  p05: {
-    brand: 'Apple',
-    sku: 'LAP-APP-APP-078',
-    description:
-      "The MacBook Pro 14 Inch in Space Grey is a powerful and sleek laptop, featuring Apple's M1 Pro chip for exceptional performance and a stunning Retina display.",
-    images: [
-      'https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/1.webp',
-      'https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/2.webp',
-      'https://cdn.dummyjson.com/product-images/laptops/apple-macbook-pro-14-inch-space-grey/3.webp',
-    ],
-    stock: 24,
-    shippingNote: 'Ships in 2 weeks',
-    warranty: '3 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Apple' },
-      { label: 'SKU', value: 'LAP-APP-APP-078' },
-      { label: 'Weight', value: '9 kg' },
-      { label: 'Dimensions (W × H × D)', value: '20.03 × 9.54 × 14.82 cm' },
-      { label: 'Warranty', value: '3 year warranty' },
-    ],
-  },
-  p06: {
-    brand: null,
-    sku: 'KIT-BRD-CAR-052',
-    description:
-      'The Carbon Steel Wok is a versatile cooking pan suitable for stir-frying, sautéing, and deep frying. Its sturdy construction ensures even heat distribution for delicious meals.',
-    images: [
-      'https://cdn.dummyjson.com/product-images/kitchen-accessories/carbon-steel-wok/1.webp',
-    ],
-    stock: 40,
-    shippingNote: 'Ships in 1-2 business days',
-    warranty: '2 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Unbranded' },
-      { label: 'SKU', value: 'KIT-BRD-CAR-052' },
-      { label: 'Weight', value: '2 kg' },
-      { label: 'Dimensions (W × H × D)', value: '27.69 × 7.54 × 10.11 cm' },
-      { label: 'Warranty', value: '2 year warranty' },
-    ],
-  },
-  p07: {
-    brand: 'Puma',
-    sku: 'MEN-PUM-PUM-090',
-    description:
-      'The Puma Future Rider Trainers offer a blend of retro style and modern comfort. Perfect for casual wear, these trainers provide a fashionable and comfortable option for everyday use.',
-    images: [
-      'https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/1.webp',
-      'https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/2.webp',
-      'https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/3.webp',
-      'https://cdn.dummyjson.com/product-images/mens-shoes/puma-future-rider-trainers/4.webp',
-    ],
-    stock: 90,
-    shippingNote: 'Ships in 1-2 business days',
-    warranty: '5 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Puma' },
-      { label: 'SKU', value: 'MEN-PUM-PUM-090' },
-      { label: 'Weight', value: '6 kg' },
-      { label: 'Dimensions (W × H × D)', value: '17.45 × 15.58 × 23.13 cm' },
-      { label: 'Warranty', value: '5 year warranty' },
-    ],
-  },
-  p08: {
-    brand: 'Glamour Beauty',
-    sku: 'BEA-GLA-EYE-002',
-    description:
-      "The Eyeshadow Palette with Mirror offers a versatile range of eyeshadow shades for creating stunning eye looks. With a built-in mirror, it's convenient for on-the-go makeup application.",
-    images: [
-      'https://cdn.dummyjson.com/product-images/beauty/eyeshadow-palette-with-mirror/1.webp',
-    ],
-    stock: 34,
-    shippingNote: 'Ships in 2 weeks',
-    warranty: '1 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Glamour Beauty' },
-      { label: 'SKU', value: 'BEA-GLA-EYE-002' },
-      { label: 'Weight', value: '9 kg' },
-      { label: 'Dimensions (W × H × D)', value: '9.26 × 22.47 × 27.67 cm' },
-      { label: 'Warranty', value: '1 year warranty' },
-    ],
-  },
-  p09: {
-    brand: null,
-    sku: 'SPO-BRD-BAS-140',
-    description:
-      'The Basketball is a standard ball used in basketball games. It is designed for dribbling, shooting, and passing in the game of basketball, suitable for both indoor and outdoor play.',
-    images: ['https://cdn.dummyjson.com/product-images/sports-accessories/basketball/1.webp'],
-    stock: 75,
-    shippingNote: 'Ships in 1 week',
-    warranty: '1 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Unbranded' },
-      { label: 'SKU', value: 'SPO-BRD-BAS-140' },
-      { label: 'Weight', value: '7 kg' },
-      { label: 'Dimensions (W × H × D)', value: '27.86 × 10.64 × 18.75 cm' },
-      { label: 'Warranty', value: '1 year warranty' },
-    ],
-  },
-  p11: {
-    brand: 'Samsung',
-    sku: 'SMA-SAM-SAM-132',
-    description:
-      'The Samsung Galaxy S8 is a premium smartphone with an Infinity Display, offering a stunning visual experience. It boasts advanced camera capabilities and cutting-edge technology.',
-    images: [
-      'https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s8/1.webp',
-      'https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s8/2.webp',
-      'https://cdn.dummyjson.com/product-images/smartphones/samsung-galaxy-s8/3.webp',
-    ],
-    stock: 0,
-    shippingNote: 'Ships in 1 week',
-    warranty: '2 year warranty',
-    specs: [
-      { label: 'Brand', value: 'Samsung' },
-      { label: 'SKU', value: 'SMA-SAM-SAM-132' },
-      { label: 'Weight', value: '6 kg' },
-      { label: 'Dimensions (W × H × D)', value: '23.05 × 26.88 × 15.73 cm' },
-      { label: 'Warranty', value: '2 year warranty' },
-    ],
-  },
-  p12: {
-    brand: null,
-    sku: 'HOM-BRD-TAB-047',
-    description:
-      'The Table Lamp is a functional and decorative lighting solution for your living space. With a modern design, it provides both ambient and task lighting, enhancing the atmosphere.',
-    images: ['https://cdn.dummyjson.com/product-images/home-decoration/table-lamp/1.webp'],
-    stock: 9,
-    shippingNote: 'Ships in 1-2 business days',
-    warranty: '3 months warranty',
-    specs: [
-      { label: 'Brand', value: 'Unbranded' },
-      { label: 'SKU', value: 'HOM-BRD-TAB-047' },
-      { label: 'Weight', value: '4 kg' },
-      { label: 'Dimensions (W × H × D)', value: '8.98 × 13.41 × 5.65 cm' },
-      { label: 'Warranty', value: '3 months warranty' },
-    ],
-  },
-
-  p10: {
-    brand: 'Basic Books',
-    sku: 'BOK-BAS-DES-010',
-    description:
-      'Don Norman explains why some products satisfy customers while others only frustrate them, and how good design makes objects easy to understand and use. Revised and expanded edition.',
-    images: [bookCover('9780465050659')],
-    stock: 51,
-    shippingNote: 'Ships in 1-2 business days',
-    warranty: null,
-    specs: [
-      { label: 'Author', value: 'Don Norman' },
-      { label: 'Publisher', value: 'Basic Books' },
-      { label: 'Edition', value: 'Revised and expanded, 2013' },
-      { label: 'ISBN', value: '9780465050659' },
-    ],
-  },
-}
-
-const allProducts = [...featured, ...newArrivals]
-
 export async function mockProductPage(
   slug: string,
   scenario: MockScenario,
@@ -439,14 +126,69 @@ export async function mockProductPage(
   if (scenario === 'loading') return new Promise(() => {})
   await wait(500)
   if (scenario === 'error') throw new Error('The catalog service did not respond (mock error).')
-  const base = allProducts.find((p) => p.slug === slug)
+  const product = products.find((p) => p.slug === slug)
   // ?mock=empty previews the "product not found" state.
-  if (scenario === 'empty' || !base) return null
-  const others = allProducts.filter((p) => p.id !== base.id)
-  // Same category first, then fill up to 4 from the rest.
-  const related = [
-    ...others.filter((p) => p.category.slug === base.category.slug),
-    ...others.filter((p) => p.category.slug !== base.category.slug),
-  ].slice(0, 4)
-  return { product: { ...base, ...details[base.id]! }, related }
+  if (scenario === 'empty' || !product) return null
+  const others = products.filter((p) => p.id !== product.id && p.inStock)
+  const related = others.filter((p) => p.category.slug === product.category.slug).slice(0, 4)
+  return { product, related: related.map(toCard) }
+}
+
+function facet(values: string[], label: (value: string) => string): FacetOption[] {
+  const counts = new Map<string, number>()
+  for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1)
+  return [...counts]
+    .map(([value, count]) => ({ value, label: label(value), count }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+}
+
+export async function mockListProducts(
+  query: ProductQuery,
+  scenario: MockScenario,
+): Promise<ProductListResult> {
+  if (scenario === 'loading') return new Promise(() => {})
+  await wait(450)
+  if (scenario === 'error') throw new Error('The catalog service did not respond (mock error).')
+  const empty = { categories: [], brands: [] }
+  if (scenario === 'empty')
+    return { items: [], total: 0, page: 1, pageSize: PAGE_SIZE, facets: empty }
+
+  const words = (query.q ?? '').toLowerCase().split(/\s+/).filter(Boolean)
+  const matchesText = (p: ProductDetail) => {
+    const text = `${p.name} ${p.brand ?? ''} ${p.category.name}`.toLowerCase()
+    return words.every((w) => text.includes(w))
+  }
+  const matchesPrice = (p: ProductDetail) =>
+    (query.minPrice === undefined || p.price.amount >= query.minPrice) &&
+    (query.maxPrice === undefined || p.price.amount <= query.maxPrice) &&
+    (!query.inStockOnly || p.inStock)
+
+  // Facets count with the search, price and stock filters applied.
+  const base = products.filter((p) => matchesText(p) && matchesPrice(p))
+  const inCategory = base.filter((p) => !query.category || p.category.slug === query.category)
+  const brands = query.brands ?? []
+  const results = inCategory.filter((p) => !brands.length || brands.includes(p.brand ?? ''))
+
+  if (query.sort === 'price-asc') results.sort((a, b) => a.price.amount - b.price.amount)
+  if (query.sort === 'price-desc') results.sort((a, b) => b.price.amount - a.price.amount)
+
+  const pages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
+  const page = Math.min(Math.max(query.page ?? 1, 1), pages)
+  return {
+    items: results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map(toCard),
+    total: results.length,
+    page,
+    pageSize: PAGE_SIZE,
+    facets: {
+      // Brands are cleared when the category changes, so category counts ignore brands.
+      categories: facet(
+        base.map((p) => p.category.slug),
+        categoryName,
+      ),
+      brands: facet(
+        inCategory.flatMap((p) => (p.brand ? [p.brand] : [])),
+        (v) => v,
+      ),
+    },
+  }
 }

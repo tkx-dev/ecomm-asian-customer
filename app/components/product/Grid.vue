@@ -2,15 +2,25 @@
 import type { Product } from '#shared/types/catalog'
 
 // Pass `loading` to render skeleton placeholders with the same footprint as real cards.
-withDefaults(defineProps<{ products?: Product[]; loading?: boolean; skeletonCount?: number }>(), {
-  products: () => [],
-  loading: false,
-  skeletonCount: 4,
-})
+// `columns` sets the desktop column count (3 when a filter sidebar takes space).
+withDefaults(
+  defineProps<{
+    products?: Product[]
+    loading?: boolean
+    skeletonCount?: number
+    columns?: 3 | 4
+  }>(),
+  { products: () => [], loading: false, skeletonCount: 4, columns: 4 },
+)
 </script>
 
 <template>
-  <ul class="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
+  <ul
+    :class="[
+      'grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6',
+      columns === 3 ? 'sm:grid-cols-3' : 'lg:grid-cols-4',
+    ]"
+  >
     <template v-if="loading">
       <li v-for="n in skeletonCount" :key="n" aria-hidden="true">
         <div class="aspect-square rounded-lg bg-muted motion-safe:animate-pulse" />
